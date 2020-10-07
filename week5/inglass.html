@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Tomb of Annihilation</title>
+		<style>
+			#monsterImg {
+				height: 400px;
+				width: 500px;
+			}
+			#output {
+				width: 600px;
+				height: 200px;
+				background-color: #edecda;
+				overflow-y: scroll;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Not D&D</h1>
+		
+		<p id="herostats"> </p>
+		
+		<p id="monsterstats"> </p>
+		
+		<img src="" id="monsterImg"> </img>
+		
+		<button type="button" id="attack">Attack</button>
+		
+		<button type="button" id="heal">Drink Potion</button>
+		
+		<div id="output"> </div>
+		
+		<script src="human.js">
+		</script>
+		<script src="monsters.js">
+		</script>
+		<script src="items.js">
+		</script>
+		<script>
+			function randomNum(max) {
+				return Math.floor(Math.random() * max);  
+			}
+			
+			var flag;
+			
+			var current_enemy_index = randomNum(monsters.length);
+			var	current_enemy = monsters[current_enemy_index];
+			document.querySelector("#monsterImg").src = current_enemy.image
+			
+			var game = {
+				user: human,
+				enemies: monsters,
+				current_enemy: current_enemy
+			}
+			
+			if (flag != 1) {
+				var heroHP = game.user.hp;
+				var monsterHP = game.current_enemy.hp;
+				flag = 1;
+			}
+			
+			function updateHP() {
+				document.getElementById("herostats").innerText = human.name + ",  HP: " + heroHP;
+				document.getElementById("monsterstats").innerText = monsters[current_enemy_index].name + ",  HP: " + monsterHP;
+			}
+			
+			updateHP();
+			
+			document.getElementById("attack").addEventListener("click", skirmish);
+			
+			function skirmish() {
+				heroHP = heroHP - game.current_enemy.damage;
+				monsterHP = monsterHP - game.user.damage;
+				console.log(heroHP);
+				console.log(monsterHP);
+				
+				if (heroHP <= 0 && monsterHP <= 0) {
+					alert("Tie! Both Defeated!");
+				}
+				else if(heroHP <= 0) {
+					alert("You have been slain!");
+				}
+				else if (monsterHP <= 0) {
+					alert("Hero Wins!");
+					lootDrops();
+				}
+				
+				updateHP();
+			}
+			
+			document.getElementById("heal").addEventListener("click", drinkPotion);
+			
+			function drinkPotion() {
+				if (human.has_potion == true) {
+					human.has_potion = false;
+					heroHP = heroHP + 10;
+					updateHP();
+				}
+				else {
+					alert("You don't have a potion to use!");
+				}
+			}
+				
+			function lootDrops() {
+				//generate random chance #
+				//populate an array with possible drops
+				//pick a drop and display it to player
+				
+				var chanceNumber = Math.random();
+				console.log(chanceNumber);
+				
+				var possibleItems = [];
+				items.forEach(function(items) {
+				console.log("in a loop!", items);
+					if (items.chance > chanceNumber) {
+						console.log("item can be found");
+						possibleItems.push(items);
+					}
+				});
+				
+				divTag = document.getElementById("output");
+				
+				if (possibleItems.length == 0) {
+					divTag.innerHTML = "The monster had no loot.";
+					
+				}
+				else {
+					var randomItemNumber = Math.floor(Math.random() * possibleItems.length);
+					divTag.innerHTML = '<p>' + "you found a " + possibleItems[randomItemNumber].name + "." + '</p>' + divTag.innerHTML;
+				}
+			}
+			
+		</script>
+	</body>
+</html>
